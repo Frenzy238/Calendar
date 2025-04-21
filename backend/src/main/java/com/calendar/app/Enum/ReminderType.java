@@ -1,5 +1,9 @@
 package com.calendar.app.Enum;
 
-public enum Type {
-    
+public enum ReminderType {
+    Holiday,
+    Meeting,
+    Birthday,
+    Exercise,
+    Other
 }
