@@ -1,5 +1,6 @@
 package com.calendar.app.model;
 
+import com.calendar.app.Enum.ReminderType;
 import jakarta.persistence.*;
 
 import java.util.Date;
@@ -15,12 +16,23 @@ public class Reminder{
     private String description;
     private Date date;
 
+    @Enumerated(EnumType.STRING)
+    private ReminderType reminderType;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
     public Reminder() {
 
+    }
+
+    public ReminderType getReminderType() {
+        return reminderType;
+    }
+
+    public void setReminderType(ReminderType reminderType) {
+        this.reminderType = reminderType;
     }
 
     public User getUser() {
