@@ -1,0 +1,110 @@
+.reminder-modal .modal-content {
+  border-radius: 1rem;
+  border: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.card-decoration-top {
+  height: 8px;
+  width: 100%;
+}
+
+.reminder-modal .modal-header {
+  border-bottom: none;
+  padding-top: 1.5rem;
+}
+
+.reminder-modal .modal-body {
+  padding-bottom: 2rem;
+}
+
+.form-floating > .form-control:focus,
+.form-floating > .form-control:not(:placeholder-shown) {
+  padding-top: 1.625rem;
+  padding-bottom: 0.625rem;
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+  opacity: 0.65;
+  transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+}
+
+.form-floating > .form-control-plaintext ~ label,
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+  color: #6c757d;
+}
+
+.form-control:focus {
+  box-shadow: none;
+  border-color: #007bff;
+}
+
+.form-floating > .form-select ~ label {
+  opacity: 0.65;
+  transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+}
+
+.reminder-description {
+  background-color: #f8f9fa;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-top: 0.5rem;
+  white-space: pre-wrap;
+}
+
+.reminder-info {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.btn-gradient {
+  background: linear-gradient(45deg, #007bff, #00bcd4);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+  background: linear-gradient(45deg, #0069d9, #00a0b7);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-action:hover {
+  transform: translateY(-2px);
+}
+
+.text-area-floating {
+  height: auto !important;
+  min-height: 100px;
+  padding-top: 1.625rem !important;
+}
+
+.form-control {
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .reminder-modal .modal-dialog {
+    margin: 0.5rem;
+  }
+  
+  .reminder-modal .modal-content {
+    border-radius: 0.75rem;
+  }
+} 
