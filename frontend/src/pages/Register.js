@@ -102,8 +102,8 @@ const Register = () => {
                 <div className="mb-4 d-inline-block p-3 rounded-circle" style={{background: 'linear-gradient(45deg, #6a11cb, #2575fc)'}}>
                   <i className="bi bi-calendar-check text-white" style={{fontSize: '2rem'}}></i>
                 </div>
-                <h1 className="fw-bold display-6 mb-2 text-primary">Join Our Calendar</h1>
-                <p className="text-muted">Create your account in just a few steps</p>
+                <h1 className="fw-bold display-6 mb-2 text-primary">Join Calendar/Planner</h1>
+                <p className="text-muted">Create your account by filling the fields below</p>
               </div>
               
               <div className="card-body px-4 px-lg-5 pt-0 pb-5">

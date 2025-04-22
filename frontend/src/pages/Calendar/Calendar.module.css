@@ -16,7 +16,6 @@
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* Full Calendar Overrides */
 .calendar-container .fc {
   background-color: white;
   border-radius: 0.75rem;
@@ -87,7 +86,6 @@
   font-size: 0.75rem;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .calendar-container {
     padding: 1rem;
@@ -97,5 +95,67 @@
     flex-direction: column;
     gap: 0.5rem;
   }
+}
+
+.calendarBackground {
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  min-height: 100vh;
+  padding-top: 6rem;
+  padding-bottom: 2rem;
+}
+
+.eventStyle {
+  background: linear-gradient(45deg, #6a11cb, #2575fc);
+  color: white;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Custom event styling to match the image */
+:global(.fc-daygrid-event) {
+  border: none !important;
+  background: transparent !important;
+  margin: 1px 0 !important;
+  padding: 0 !important;
+}
+
+:global(.fc-event-title) {
+  padding: 2px 5px;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:global(.fc-daygrid-event-dot) {
+  display: none !important;
+}
+
+/* Update the styling for time-specific events to match the example */
+:global(.fc-event-time) {
+  display: inline-block;
+  font-weight: bold;
+  padding-left: 5px;
+}
+
+/* Style for specific event types */
+.eventHAHas {
+  background-color: #6f42c1 !important;
+  color: white;
+  border-radius: 8px;
+  padding: 0px 8px;
+}
+
+.eventInternational {
+  background-color: #6610f2 !important;
+  color: white;
+  border-radius: 8px;
+  padding: 0px 8px;
 }
 

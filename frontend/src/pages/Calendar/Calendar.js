@@ -5,7 +5,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './Calendar.module.css';
+import styles from './Calendar.module.css';
 import ReminderModal from '../../components/Reminder/ReminderModal';
 
 const Calendar = () => {
@@ -17,7 +17,7 @@ const Calendar = () => {
     description: '',
     date: '',
     time: '',
-    type: ''
+    reminderType: ''
   });
   const [selectedDate, setSelectedDate] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
@@ -54,6 +54,7 @@ const Calendar = () => {
           title: reminder.title,
           start: start,
           description: reminder.description || '',
+          reminderType: reminder.reminderType || '',
           backgroundColor: '#6a11cb',
           borderColor: '#2575fc'
         };
@@ -75,7 +76,7 @@ const Calendar = () => {
       description: '',
       date: formattedDate,
       time: '',
-      type: ''
+      reminderType: ''
     });
     setShowModal(true);
   };
@@ -88,8 +89,12 @@ const Calendar = () => {
     });
   };
   
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (values) => {
+
+    if (values && values.preventDefault) {
+      values.preventDefault();
+      values = formData;
+    }
     
     if (!currentUser) {
       alert('You must be logged in to add reminders');
@@ -99,20 +104,22 @@ const Calendar = () => {
     try {
       
       const reminder = {
-        title: formData.title,
-        description: formData.description,
-        date: `${formData.date}T${formData.time}:00`
+        title: values.title,
+        description: values.description,
+        reminderType: values.reminderType ,
+        date: `${values.date}T${values.time}:00`
       };
-      
+      console.log(reminder);
       const response = await axios.post(`/reminders/add?user=${currentUser.id}`, reminder);
       
       setEvents([
         ...events,
         {
           id: response.data?.id,
-          title: formData.title,
-          start: `${formData.date}T${formData.time}:00`,
-          description: formData.description,
+          title: values.title,
+          start: `${values.date}T${values.time}:00`,
+          description: values.description,
+          reminderType: values.reminderType || '',
           backgroundColor: '#6a11cb',
           borderColor: '#2575fc'
         }
@@ -136,26 +143,19 @@ const Calendar = () => {
     return 'popover';
   };
 
-  const handleEventClick = (info) => {
+  const handleReminderClick = (info) => {
     setSelectedEvent(info.event);
     
     const eventDate = new Date(info.event.start);
     const formattedDate = eventDate.toISOString().split('T')[0];
-
-    let formattedTime = '12:00';
-    
-    if (info.event.start) {
-      const hours = eventDate.getHours().toString().padStart(2, '0');
-      const minutes = eventDate.getMinutes().toString().padStart(2, '0');
-      formattedTime = `${hours}:${minutes}`;
-    }
+    const timeString = info.event.start.toISOString().split('T')[1].substring(0, 5);
     
     setFormData({
       title: info.event.title,
       description: info.event.extendedProps.description || '',
       date: formattedDate,
-      time: formattedTime,
-      type: info.event.extendedProps.type || ''
+      time: timeString,
+      reminderType: info.event.extendedProps.reminderType || ''
     });
     
     setShowEventModal(true);
@@ -180,28 +180,35 @@ const Calendar = () => {
     }
   };
   
-  const handleUpdateEvent = async (e) => {
-    e.preventDefault();
+  const handleUpdateEvent = async (values) => {
+
+    if (values && values.preventDefault) {
+      values.preventDefault();
+      values = formData;
+    }
     
     if (!currentUser || !selectedEvent) return;
     
     try {
+
+
       const reminder = {
-        title: formData.title,
-        description: formData.description,
-        type: formData.type,
-        date: `${formData.date}T${formData.time}:00`
+        title: values.title,
+        description: values.description,
+        reminderType: values.reminderType,
+        date: `${values.date}T${values.time}:00`
       };
-      
+      console.log(reminder);
       await axios.put(`/reminders/${selectedEvent.id}`, reminder);
       
       const updatedEvents = events.map(event => {
         if (event.id === selectedEvent.id) {
           return {
             ...event,
-            title: formData.title,
-            description: formData.description,
-            start: `${formData.date}T${formData.time}:00`
+            title: values.title,
+            description: values.description,
+            reminderType: values.reminderType,
+            start: `${values.date}T${values.time}:00`
           };
         }
         return event;
@@ -222,15 +229,8 @@ const Calendar = () => {
     setEditMode(false);
   };
 
-  const backgroundStyle = {
-    background: 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)',
-    minHeight: '100vh',
-    paddingTop: '2rem',
-    paddingBottom: '2rem'
-  };
-
   return (
-    <div style={backgroundStyle} className="d-flex justify-content-center align-items-center">
+    <div className={`${styles.calendarBackground} d-flex justify-content-center align-items-center`}>
       <div className="container py-4">
         <div className="row justify-content-center">
           <div className="col-12 col-xl-11">
@@ -245,9 +245,7 @@ const Calendar = () => {
               </div>
               
               <div className="card-header border-0 bg-transparent text-center pt-4 pb-0">
-                <div className="mb-3 d-inline-block p-3 rounded-circle" style={{background: 'linear-gradient(45deg, #6a11cb, #2575fc)'}}>
-                  <i className="bi bi-calendar-event text-white" style={{fontSize: '2rem'}}></i>
-                </div>
+               
                 <h1 className="fw-bold display-6 mb-2 text-primary">Calendar Reminders</h1>
                 {!currentUser && (
                   <div className="alert alert-warning mx-4 mb-3">
@@ -262,21 +260,13 @@ const Calendar = () => {
                     plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin]}
                     initialView="dayGridMonth"
                     dateClick={handleDateClick}
-                    eventClick={handleEventClick}
+                    eventClick={handleReminderClick}
                     events={events}
                     moreLinkClick={handleMoreLinkClick}
                     dayMaxEventRows={3}
                     dayPopoverFormat={{ month: 'long', day: 'numeric', year: 'numeric' }}
                     eventContent={(eventInfo) => (
-                      <div className="event" style={{
-                        background: 'linear-gradient(45deg, #6a11cb, #2575fc)', 
-                        color: 'white',
-                        padding: '2px 4px',
-                        borderRadius: '4px',
-                        fontSize: '0.85em',
-                        fontWeight: 'bold',
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                      }}>
+                      <div className={styles.eventStyle}>
                         <p className="mb-0">{eventInfo.timeText} {eventInfo.event.title}</p>
                       </div>
                     )}

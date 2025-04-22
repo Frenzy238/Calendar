@@ -13,12 +13,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.Calendar;
 
 @Service
 public class ReminderService {
 
     private static final String API_URL = "https://date.nager.at/api/v3/PublicHolidays/2025/LT";
-    ReminderType reminderType = ReminderType.Holiday;
+    ReminderType reminderType = ReminderType.Other;
+    
     @Autowired
     private ReminderRepository reminderRepository;
 
@@ -70,9 +72,18 @@ public class ReminderService {
             String title = (String) reminderData.get("name");
             String dateString = (String) reminderData.get("date");
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            try{
-                Date date = dateFormat.parse(dateString);
+            try {
+                String[] dateParts = dateString.split("-");
+                int year = Integer.parseInt(dateParts[0]);
+                int month = Integer.parseInt(dateParts[1]) - 1;
+                int day = Integer.parseInt(dateParts[2]);
+                
+                Calendar cal = Calendar.getInstance();
+                cal.clear(); 
+                cal.set(year, month, day, 9, 0, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+                
+                Date date = cal.getTime();
 
                 Reminder reminder = new Reminder();
                 reminder.setTitle(title);
@@ -80,8 +91,7 @@ public class ReminderService {
                 reminder.setReminderType(ReminderType.Holiday);
                 reminder.setUser(user);
                 reminderRepository.save(reminder);
-
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 

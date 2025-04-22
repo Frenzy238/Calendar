@@ -1,8 +1,23 @@
-import React, { useState, useEffect } from 'react';
-
-import { Modal, Button, Form } from 'react-bootstrap';
+import React from 'react';
+import { Modal, Button } from 'react-bootstrap';
+import { Formik, Form as FormikForm, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 import styles from './ReminderModal.module.css';
 
+// Validacija
+const ReminderSchema = Yup.object().shape({
+  title: Yup.string()
+    .min(4, 'Title is too short')
+    .max(30, 'Title is too long')
+    .required('Title is required field'),
+  description: Yup.string()
+    .max(150, 'Description must be less than 150 characters'),
+  date: Yup.date()
+    .required('Date is required field'),
+  time: Yup.string()
+    .required('Time is required field'),
+  reminderType: Yup.string().required('Type is required')
+});
 
 const ReminderModal = ({ 
   show, 
@@ -15,12 +30,18 @@ const ReminderModal = ({
   onToggleEdit = null, 
   onDelete = null 
 }) => {
-  // Determine if we're showing the add, edit, or view mode
-  const isAddMode = !editMode && !onToggleEdit;
-  const isViewMode = !editMode && onToggleEdit;
-  
- 
 
+  const viewMode = !editMode && onToggleEdit;
+  
+  const reminderTypes = [
+    { value: '', label: 'Select a type' },
+    { value: 'Event', label: 'Event' },
+    { value: 'Holiday', label: 'Holiday' },
+    { value: 'Meeting', label: 'Meeting' },
+    { value: 'Birthday', label: 'Birthday' },
+    { value: 'Exercise', label: 'Exercise' },
+    { value: 'Other', label: 'Other' }
+  ];
   
   return (
     <Modal 
@@ -42,26 +63,62 @@ const ReminderModal = ({
       </Modal.Header>
 
       <Modal.Body className="px-4 pt-3">
-        {isViewMode && !editMode ? (
+        {viewMode && !editMode ? (
           <div className="reminder-details">
-            <h4 className="mb-3">{formData.title}</h4>
-            <p className="reminder-info">
-              <strong>Date:</strong> {new Date(formData.date).toLocaleDateString()}
-            </p>
-            <p className="reminder-info">
-              <strong>Time:</strong> {formData.time}
-            </p>
-            {formData.type && (
-              <p className="reminder-info">
-                <strong>Type:</strong> {formData.type}
-              </p>
-            )}
+            <div className="form-floating mb-3">
+              <div className="form-control border-0 bg-light">
+                {formData.title}
+              </div>
+              <label>
+                <i className="bi bi-bookmark me-2 text-primary"></i>
+                Title
+              </label>
+            </div>
+            
             {formData.description && (
-              <div className="mt-3">
-                <strong>Description:</strong>
-                <p className="reminder-description">{formData.description}</p>
+              <div className="form-floating mb-3">
+                <div className="form-control border-0 bg-light text-area-floating" style={{ height: '100px' }}>
+                  {formData.description}
+                </div>
+                <label>
+                  <i className="bi bi-text-paragraph me-2 text-primary"></i>
+                  Description
+                </label>
               </div>
             )}
+            
+            <div className="form-floating mb-3">
+              <div className="form-control border-0 bg-light">
+                {new Date(formData.date).toLocaleDateString()}
+              </div>
+              <label>
+                <i className="bi bi-calendar me-2 text-primary"></i>
+                Date
+              </label>
+            </div>
+            
+            <div className="form-floating mb-3">
+              <div className="form-control border-0 bg-light">
+                {formData.time}
+              </div>
+              <label>
+                <i className="bi bi-clock me-2 text-primary"></i>
+                Time
+              </label>
+            </div>
+            
+            {formData.reminderType && (
+              <div className="form-floating mb-3">
+                <div className="form-control border-0 bg-light">
+                  {formData.reminderType}
+                </div>
+                <label>
+                  <i className="bi bi-tag me-2 text-primary"></i>
+                  Reminder Type
+                </label>
+              </div>
+            )}
+            
             <div className="d-flex justify-content-end mt-4">
               <Button 
                 variant="outline-primary" 
@@ -80,119 +137,146 @@ const ReminderModal = ({
             </div>
           </div>
         ) : (
-          <Form onSubmit={onSubmit}>
-            <Form.Group className="form-floating mb-3">
-              <Form.Control
-                type="text"
-                name="title"
-                id="title"
-                className="form-control border-0 bg-light"
-                placeholder=" "
-                value={formData.title}
-                onChange={onChange}
-                required
-              />
-              <Form.Label htmlFor="title">
-                <i className="bi bi-bookmark me-2 text-primary"></i>
-                Title
-              </Form.Label>
-            </Form.Group>
-            
-           
-
-            <Form.Group className="form-floating mb-3">
-              <Form.Control
-                as="textarea"
-                rows={3}
-                name="description"
-                id="description"
-                className="form-control border-0 bg-light text-area-floating"
-                placeholder=" "
-                value={formData.description}
-                onChange={onChange}
-                style={{ height: '100px' }}
-              />
-              <Form.Label htmlFor="description">
-                <i className="bi bi-text-paragraph me-2 text-primary"></i>
-                Description
-              </Form.Label>
-            </Form.Group>
-            
-            <Form.Group className="form-floating mb-3">
-              <Form.Control
-                type="date"
-                name="date"
-                id="date"
-                className="form-control border-0 bg-light"
-                placeholder=" "
-                value={formData.date}
-                onChange={onChange}
-                required
-              />
-              <Form.Label htmlFor="date">
-                <i className="bi bi-calendar me-2 text-primary"></i>
-                Date
-              </Form.Label>
-            </Form.Group>
-            
-            <Form.Group className="form-floating mb-3">
-              <Form.Control
-                type="time"
-                name="time"
-                id="time"
-                className="form-control border-0 bg-light"
-                placeholder=" "
-                value={formData.time}
-                onChange={onChange}
-                required
-                step="60"
-              />
-              <Form.Label htmlFor="time">
-                <i className="bi bi-clock me-2 text-primary"></i>
-                Time (24-hour format)
-              </Form.Label>
-            </Form.Group>
-            
-            {editMode && (
-              <Form.Group className="form-floating mb-3">
-                <Form.Select
-                  name="type"
-                  id="type"
-                  className="form-control border-0 bg-light"
-                  value={formData.type}
-                  onChange={onChange}
-                >
-                  <option value="">Select a type</option>
-                  <option value="Holiday">Holiday</option>
-                  <option value="Meeting">Meeting</option>
-                  <option value="Birthday">Birthday</option>
-                  <option value="Exercise">Exercise</option>
-                  <option value="Other">Other</option>
-                </Form.Select>
-                <Form.Label htmlFor="type">
-                  <i className="bi bi-tag me-2 text-primary"></i>
-                  Reminder Type
-                </Form.Label>
-              </Form.Group>
+          <Formik
+            initialValues={formData}
+            validationSchema={ReminderSchema}
+            onSubmit={onSubmit}
+            enableReinitialize={true}
+          >
+            {({ values, handleChange, handleBlur, handleSubmit, errors, touched }) => (
+              <FormikForm onSubmit={handleSubmit}>
+                <div className="form-floating mb-3">
+                  <Field
+                    type="text"
+                    name="title"
+                    id="title"
+                    className={`form-control border-0 bg-light ${touched.title && errors.title ? 'is-invalid' : ''}`}
+                    placeholder=" "
+                    value={values.title}
+                    onChange={(e) => {
+                      handleChange(e);
+                      onChange(e);
+                    }}
+                    onBlur={handleBlur}
+                  />
+                  <label htmlFor="title">
+                    <i className="bi bi-bookmark me-2 text-primary"></i>
+                    Title
+                  </label>
+                  <ErrorMessage name="title" component="div" className="invalid-feedback" />
+                </div>
+                
+                <div className="form-floating mb-3">
+                  <Field
+                    as="textarea"
+                    rows={3}
+                    name="description"
+                    id="description"
+                    className={`form-control border-0 bg-light text-area-floating ${touched.description && errors.description ? 'is-invalid' : ''}`}
+                    placeholder=" "
+                    value={values.description}
+                    onChange={(e) => {
+                      handleChange(e);
+                      onChange(e);
+                    }}
+                    onBlur={handleBlur}
+                    style={{ height: '100px' }}
+                  />
+                  <label htmlFor="description">
+                    <i className="bi bi-text-paragraph me-2 text-primary"></i>
+                    Description
+                  </label>
+                  <ErrorMessage name="description" component="div" className="invalid-feedback" />
+                </div>
+                
+                <div className="form-floating mb-3">
+                  <Field
+                    type="date"
+                    name="date"
+                    id="date"
+                    className={`form-control border-0 bg-light ${touched.date && errors.date ? 'is-invalid' : ''}`}
+                    placeholder=" "
+                    value={values.date}
+                    onChange={(e) => {
+                      handleChange(e);
+                      onChange(e);
+                    }}
+                    onBlur={handleBlur}
+                  />
+                  <label htmlFor="date">
+                    <i className="bi bi-calendar me-2 text-primary"></i>
+                    Date
+                  </label>
+                  <ErrorMessage name="date" component="div" className="invalid-feedback" />
+                </div>
+                
+                <div className="form-floating mb-3">
+                  <Field
+                    type="time"
+                    name="time"
+                    id="time"
+                    className={`form-control border-0 bg-light ${touched.time && errors.time ? 'is-invalid' : ''}`}
+                    placeholder=" "
+                    value={values.time}
+                    onChange={(e) => {
+                      handleChange(e);
+                      onChange(e);
+                    }}
+                    onBlur={handleBlur}
+                    step="60"
+                  />
+                  <label htmlFor="time">
+                    <i className="bi bi-clock me-2 text-primary"></i>
+                    Time 
+                  </label>
+                  <ErrorMessage name="time" component="div" className="invalid-feedback" />
+                </div>
+                
+                <div className="form-floating mb-3">
+                  <Field
+                    as="select"
+                    name="reminderType"
+                    id="reminderType"
+                    className={`form-control border-0 bg-light ${touched.reminderType && errors.reminderType ? 'is-invalid' : ''}`}
+                    value={values.reminderType}
+                    onChange={(e) => {
+                      handleChange(e);
+                      onChange(e);
+                    }}
+                    onBlur={handleBlur}
+                  >
+                    {reminderTypes.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </Field>
+                  <label htmlFor="reminderType">
+                    <i className="bi bi-tag me-2 text-primary"></i>
+                    Reminder Type <i className="bi bi-caret-down-fill ms-1 small"></i>
+                  </label>
+                  <ErrorMessage name="reminderType" component="div" className="invalid-feedback" />
+                </div>
+                
+                <div className="d-flex justify-content-end mt-4">
+                  <Button 
+                    variant="outline-secondary" 
+                    className="me-2 btn-action" 
+                    onClick={onHide}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    variant="primary" 
+                    type="submit" 
+                    className="btn-gradient"
+                  >
+                    {editMode ? 'Update Reminder' : 'Save Reminder'}
+                  </Button>
+                </div>
+              </FormikForm>
             )}
-            
-            <div className="d-flex justify-content-end mt-4">
-              <Button 
-                variant="outline-secondary" 
-                className="me-2 btn-action" 
-                onClick={onHide}
-              >
-                Cancel
-              </Button>
-              <Button 
-                variant="primary" 
-                type="submit" 
-                className="btn-gradient"
-              >
-                {editMode ? 'Update Reminder' : 'Save Reminder'}
-              </Button>
-            </div>
-          </Form>
+          </Formik>
         )}
       </Modal.Body>
     </Modal>
