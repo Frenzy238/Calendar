@@ -55,7 +55,7 @@ const Register = () => {
       })
       .then(data => {
         console.log("registered successfully:", data);
-        setMessage("Registration successful!");
+        setMessage("Registration successful! Continue to Sign in");
         setIsError(false);
       })
       .catch(error => {

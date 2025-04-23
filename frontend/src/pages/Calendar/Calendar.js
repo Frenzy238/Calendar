@@ -3,7 +3,6 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './Calendar.module.css';
 import ReminderModal from '../../components/Reminder/ReminderModal';
@@ -44,9 +43,27 @@ const Calendar = () => {
   
   const fetchReminders = async () => {
     try {
-        const response = await axios.get(`/reminders/user/${currentUser.id}`);
+      const credentials = btoa("admin:admin");
+      const response = await fetch(`http://localhost:8080/reminders/user/${currentUser.id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Basic ${credentials}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      
+      const contentType = response.headers.get("content-type");
+      let data = [];
+      
+      if (contentType && contentType.includes("application/json") && response.headers.get('content-length') !== '0') {
+        data = await response.json();
+      }
 
-      const formattedEvents = response.data.map(reminder => {
+      const formattedEvents = data.map(reminder => {
         let start = reminder.date;
 
         return {
@@ -106,16 +123,38 @@ const Calendar = () => {
       const reminder = {
         title: values.title,
         description: values.description,
-        reminderType: values.reminderType ,
+        reminderType: values.reminderType,
         date: `${values.date}T${values.time}:00`
       };
       console.log(reminder);
-      const response = await axios.post(`/reminders/add?user=${currentUser.id}`, reminder);
+      
+      const credentials = btoa("admin:admin");
+      const response = await fetch(`http://localhost:8080/reminders/add?user=${currentUser.id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Basic ${credentials}`
+        },
+        body: JSON.stringify(reminder)
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      
+      const contentType = response.headers.get("content-type");
+      let responseData = {};
+      
+      if (contentType && contentType.includes("application/json") && response.headers.get('content-length') !== '0') {
+        responseData = await response.json();
+      } else {
+        responseData = { id: Date.now() };
+      }
       
       setEvents([
         ...events,
         {
-          id: response.data?.id,
+          id: responseData?.id,
           title: values.title,
           start: `${values.date}T${values.time}:00`,
           description: values.description,
@@ -126,7 +165,6 @@ const Calendar = () => {
       ]);
       
       setShowModal(false);
-      
       
       fetchReminders();
     } catch (error) {
@@ -170,7 +208,19 @@ const Calendar = () => {
     if (!currentUser || !selectedEvent) return;
     
     try {
-      await axios.delete(`/reminders/${selectedEvent.id}`);
+      const credentials = btoa("admin:admin");
+      const response = await fetch(`http://localhost:8080/reminders/${selectedEvent.id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Basic ${credentials}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      
       setEvents(events.filter(event => event.id !== selectedEvent.id));
       setShowEventModal(false);
       fetchReminders();
@@ -190,8 +240,6 @@ const Calendar = () => {
     if (!currentUser || !selectedEvent) return;
     
     try {
-
-
       const reminder = {
         title: values.title,
         description: values.description,
@@ -199,7 +247,20 @@ const Calendar = () => {
         date: `${values.date}T${values.time}:00`
       };
       console.log(reminder);
-      await axios.put(`/reminders/${selectedEvent.id}`, reminder);
+      
+      const credentials = btoa("admin:admin");
+      const response = await fetch(`http://localhost:8080/reminders/${selectedEvent.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Basic ${credentials}`
+        },
+        body: JSON.stringify(reminder)
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
       
       const updatedEvents = events.map(event => {
         if (event.id === selectedEvent.id) {
